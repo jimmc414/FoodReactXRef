@@ -3,12 +3,18 @@ import json
 import datetime
 import pandas as pd
 from difflib import get_close_matches
+import pyperclip
 
 # Create the DataFrame to store ingredients and timestamps
 ingredients_df = pd.DataFrame(columns=['ingredient', 'timestamp'])
 
 # Prompt the user for the UPC code of the food item they want to look up
 upc = input("Enter the UPC code of the food item you want to look up: ")
+
+#Check if the UPC code entered is valid
+if not upc.isdigit() or len(upc) != 12:
+    print("Invalid UPC code. Please enter a 12 digit number.")
+    exit()
 
 # Make a GET request to the Open Food Facts API
 response = requests.get(f'https://world.openfoodfacts.org/api/v0/product/{upc}.json')
@@ -18,7 +24,7 @@ data = json.loads(response.text)
 
 # Check if the product key exists in the JSON object
 if 'product' not in data:
-    print(f"Invalid UPC code {upc}.")
+    print(f"Invalid UPC code {upc}. No product found.")
     exit()
 
 # Extract the ingredient list and timestamp from the response
@@ -45,7 +51,6 @@ report += "Ingredient Report\n"
 report += "UPC: " + upc + "\n"
 report += "Product Name: " + data['product']['product_name'] + "\n"
 report += "Timestamp: " + timestamp + "\n"
-
 
 # Iterate through the ingredient list and add each ingredient to the report
 for ingredient in norm_ingredient_list:
